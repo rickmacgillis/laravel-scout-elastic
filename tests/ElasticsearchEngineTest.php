@@ -158,8 +158,6 @@ class ElasticsearchEngineTestModel extends \Illuminate\Database\Eloquent\Model
 {
     public $useElasticSource = false;
 
-    protected $guarded = [];
-
     public function getIdAttribute()
     {
         return 1;
