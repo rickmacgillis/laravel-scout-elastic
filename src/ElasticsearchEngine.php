@@ -210,6 +210,13 @@ class ElasticsearchEngine extends Engine
         $keys = collect($results['hits']['hits'])
                         ->pluck('_id')->values()->all();
 
+        if (property_exists($model, 'useElasticSource') && $model->useElasticSource) {
+            $modelClass = get_class($model);
+            return collect($results['hits']['hits'])->map(function ($hit) use ($modelClass) {
+                return new $modelClass($hit['_source']);
+            })->filter()->values();
+        }
+
         $models = $model->whereIn(
             $model->getKeyName(), $keys
         )->get()->keyBy($model->getKeyName());

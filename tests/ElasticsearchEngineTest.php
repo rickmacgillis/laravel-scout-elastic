@@ -127,10 +127,39 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, count($results));
     }
+
+    public function test_map_uses_source_data_if_param_exists()
+    {
+        $client = Mockery::mock('Elasticsearch\Client');
+        $engine = new ElasticsearchEngine($client, 'scout');
+
+        $model = new ElasticsearchEngineTestModel();
+        $model->useElasticSource = true;
+
+        $results = $engine->map([
+            'hits' => [
+                'total' => '1',
+                'hits' => [
+                    [
+                        '_id' => '1',
+                        '_source' => [
+                            'foo' => 'bar',
+                        ],
+                    ]
+                ]
+            ]
+        ], $model);
+
+        $this->assertEquals('bar', $results->first()->foo);
+    }
 }
 
 class ElasticsearchEngineTestModel extends \Illuminate\Database\Eloquent\Model
 {
+    public $useElasticSource = false;
+
+    protected $guarded = [];
+
     public function getIdAttribute()
     {
         return 1;
