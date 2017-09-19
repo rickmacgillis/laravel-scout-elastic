@@ -211,15 +211,12 @@ class ElasticsearchEngine extends Engine
                         ->pluck('_id')->values()->all();
 
         if (property_exists($model, 'useElasticSource') && $model->useElasticSource) {
-            /** @var \Illuminate\Database\Eloquent\Model $modelClass */
             $modelClass = get_class($model);
-            $modelClass::unguard();
-            $entities = collect($results['hits']['hits'])->map(function ($hit) use ($modelClass) {
-                return new $modelClass($hit['_source']);
+            return collect($results['hits']['hits'])->map(function ($hit) use ($modelClass) {
+                /** @var \Illuminate\Database\Eloquent\Model $model */
+                $model = new $modelClass;
+                return $model->newFromBuilder($hit['_source']);
             })->filter()->values();
-            $modelClass::reguard();
-
-            return $entities;
         }
 
         $models = $model->whereIn(

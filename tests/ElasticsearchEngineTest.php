@@ -150,7 +150,10 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
             ]
         ], $model);
 
-        $this->assertEquals('bar', $results->first()->foo);
+        /** @var \Illuminate\Database\Eloquent\Model $resultFirst */
+        $resultFirst = $results->first();
+        $this->assertEquals('bar', $resultFirst->foo);
+        $this->assertTrue($resultFirst->exists);
     }
 }
 
